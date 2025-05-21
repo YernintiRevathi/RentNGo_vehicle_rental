@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0 auto; 
+            text-align: center;
+            display: flex;
+            justify-content: center;  /* Center horizontally */
+            align-items: center;      /* Center vertically */
+            padding: 0; 
+            background-image: url('https://images.pexels.com/photos/70912/pexels-photo-70912.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            min-height: 100vh; 
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: black;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Payment Successful!</h2>
+        {% if payment_details %}
+            <p><strong>Transaction ID:</strong> {{ payment_details["id"] }}</p>
+            <p><strong>Payment Method:</strong> {{ payment_details["method"] }}</p>
+            <p><strong>Amount:</strong> ₹{{ "%.2f"|format(payment_details['amount']|float) }}</p>
+            <p><strong>Date:</strong> {{ payment_details["date"] }}</p>
+        {% else %}
+            <p>No transaction details available.</p>
+        {% endif %}
+        <br>
+        <a href="/" class="btn">Go to Home</a>
+        <a href="/transactions" class="btn">View Transactions</a>
+    </div>
+</body>
+</html>

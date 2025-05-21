@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Profile Page</title>
+        <style>
+            .fixed-background {
+                color: #2B3A50;
+                background-color: antiquewhite;
+                width: 100%;
+                overflow: hidden;
+                text-wrap: nowrap;
+                border-radius: 10px;
+            }
+            body {
+                background-image: url('https://static.vecteezy.com/system/resources/thumbnails/026/992/343/small_2x/classic-modified-car-with-dark-smokie-background-ai-generative-free-photo.jpg');
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-attachment: fixed;
+            }
+            .scrolling {
+                display: inline-block;
+                animation: scroll-left 10s linear infinite;
+            }
+            @keyframes scroll-left {
+                from {
+                    transform: translatex(300%);
+                }
+                to {
+                    transform: translatex(-100%);
+                }
+            }
+            .form-styling {
+                margin: 80px auto;
+                width: 400px;
+                display: block;
+                border-color: #2B3A50;
+                border-width: 3px;
+                border-style: solid;
+                position: center;
+                background-color: antiquewhite;
+                border-radius: 10px;
+            }
+            label, input, p {
+                display: block;
+                margin-left: 30px;
+                width: 80%;
+                font-size: 102%;
+            }
+            button {
+                display: block;
+                margin: 0 auto;
+                width: 35%;
+                height:35px;
+                font-size: 110%;
+                background-color: #2B3A50;
+                color: aliceblue;
+            }
+            input, button {
+                border: 0.5px solid;
+                border-radius: 5px;
+            }
+            .center {
+                text-align: center;
+            }
+            .sliding_menu {
+                position: absolute;
+                margin-top: 30px;
+                left: 20px;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                z-index: 1000;
+            }
+            .sliding_menu div {
+                background-color: brown;
+                width: 30px;
+                height: 5px;
+                border: 2px black solid;
+                border-radius: 2px;
+            }
+            .sliding_menu.top {
+                top: 0;
+            }
+            .menu {
+                position: fixed;
+                top: 0;
+                left: -250px;
+                width: 250px;
+                height: 100%;
+                background-color: #0D2330;
+                transition: 0.3s;
+                padding-top: 60px;
+            }
+            .menu a {
+                padding: 20px 16px;
+                text-decoration: none;
+                color: antiquewhite;
+                display: block;
+                font-family: 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif;
+                font-size: 18px;
+                transition: 0.3s;
+            }
+            .menu a:hover {
+                background-color: #7d5003;
+            }
+            .menu.open {
+                left: 0;
+            }
+
+            /* Modal Styles */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgb(0, 0, 0);
+                background-color: rgba(0, 0, 0, 0.4);
+                padding-top: 60px;
+            }
+
+            /* Modal Content */
+            .modal-content {
+                background-color: #fefefe;
+                margin: 5% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                border-radius: 10px;
+                position: relative; /* Important for positioning the close button */
+            }
+
+            /* Close Button */
+            .close {
+                color: #aaa;
+                position: absolute; /* Position the close button inside the modal */
+                top: 10px;
+                right: 10px;
+                font-size: 30px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 2; /* Ensure it's above other elements */
+            }
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+            }
+            .output{
+                color:darkred;
+                margin:0 auto;
+                width:50%;
+                font-style: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="fixed-background">
+            <h1 class="scrolling">Welcome to RentNGo Website :)</h1>
+        </div>
+
+        <!-- Sliding Menu -->
+        <div class="sliding_menu" id="sliding_menu" onclick="slide()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+
+        <div class="menu" id="menu">
+            {% if 'user_logged_in' in session %}
+                <a href="/">Home</a>
+                <a href="/explore">Explore vehicles</a>
+                <a href="{{ url_for('transaction_history') }}">Your Transactions</a>
+            {% endif %}
+        </div>
+
+        <div class="form-styling">
+            <h1 class="center">Your Profile</h1>
+
+            <!-- Display flash messages in a custom modal -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                
+                {% if messages %}
+                    <div id="myModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal()">&times;</span>
+                            <p>{{ messages[0][1] }}</p>  <!-- Display message content -->
+                        </div>
+                    </div>
+                    <script>
+                        // Show the modal only if there's a message
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var modal = document.getElementById("myModal");
+                            modal.style.display = "block";
+                        });
+                    </script>
+                {% endif %}
+            {% endwith %}
+
+            <div class="user-details">
+                <form method="POST" action="/profile/edit" id="profile-form">
+                    <p><strong>Username:</strong> 
+                        <input type="text" name="name" id="name" value="{{ user['name'] }}" required>
+                        <p id="nameerror" class="output"></p>
+                    </p>
+                    <p><strong>Email:</strong>
+                        <input type="email" name="email" value="{{ user['email'] }}" required>
+                    </p>
+
+                    <!-- Add a field to change the password -->
+                    <p><strong>New Password:</strong> 
+                        <input type="password" name="password" id="password" placeholder="Enter new password (optional)">
+                        <pre id="passworderror" class="output"></pre>
+                    </p>
+                    <p><strong>Confirm New Password:</strong> 
+                        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm new password">
+                    </p>
+
+                    <button type="submit">Save Changes</button>
+                </form>
+                <br>
+                <a href="/logout"><button>Logout</button></a>
+                <br><br>
+            </div>
+        </div>
+
+        <script>
+
+            // Function to close the modal
+            function closeModal() {
+                var modal = document.getElementById("myModal");
+                modal.style.display = "none";
+            }
+
+            function slide(){
+                var menu = document.getElementById('menu');
+                var lines = document.getElementById('sliding_menu');
+                lines.classList.toggle('top');
+                menu.classList.toggle('open');
+            }
+            // Password validation
+            document.getElementById('profile-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                const name=document.getElementById('name').value;
+                const passwordError = document.getElementById('passworderror');
+                const nameError = document.getElementById('nameerror');
+                const passPattern = /^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+                const namePattern =/^[A-Za-z\s'-]+$/;
+                passwordError.textContent = "";
+                nameError.textcontent="";
+                if (name && !namePattern.test(name)){
+                    nameError.textContent= "Name must contain only alphabets , spaces, apostrophes, and hyphens";
+                    return false;
+                }
+                // Check if password matches the conditions
+                if (password && !passPattern.test(password)) {
+                    passwordError.textContent = "Password must contain:\n- A capital letter\n- A special character\n- At least 8 characters";
+                    return false;
+                }
+                // Check if passwords match
+                if (password !== confirmPassword) {
+                    alert("Password and confirmation password do not match!");
+                    return false;
+                }
+
+                // If validation passes, submit the form
+                // alert("Profile updated successfully!");
+                this.submit();
+            });
+        </script>
+    </body>
+</html>

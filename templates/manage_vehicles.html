@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Listing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        h1 {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .delete-button {
+            background-color: red;
+        }
+        .delete-button:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vehicle Listing</h1>
+    <div class="container">
+        <button class="button" onclick="addVehicle()">Add Vehicle</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehicle Name</th>
+                    <th>Model</th>
+                    <th>Rent Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="vehicleTable">
+                <tr>
+                    <td contenteditable="true">Car A</td>
+                    <td contenteditable="true">2022</td>
+                    <td contenteditable="true">$50/day</td>
+                    <td>
+                        <button class="button delete-button" onclick="deleteVehicle(this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function addVehicle() {
+            let table = document.getElementById("vehicleTable");
+            let row = table.insertRow();
+            row.innerHTML = `
+                <td contenteditable="true">New Vehicle</td>
+                <td contenteditable="true">2023</td>
+                <td contenteditable="true">$60/day</td>
+                <td><button class="button delete-button" onclick="deleteVehicle(this)">Delete</button></td>
+            `;
+        }
+        function deleteVehicle(btn) {
+            let row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+    </script>
+</body>
+</html>

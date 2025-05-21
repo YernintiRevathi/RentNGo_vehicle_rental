@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Vehicle</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-image: url('https://media.istockphoto.com/id/470303669/photo/hazy-blue-smoke-on-black-background.jpg?s=612x612&w=0&k=20&c=9fkXv0sheFA9WfHkqZBzBLu-SR56WymVVzUm0Mg3nkc='); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            min-height: 100vh; 
+        }
+        .container { 
+            width: 50%; 
+            margin: 20px auto; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .input-group { 
+            margin-bottom: 15px; 
+        }
+        .total-price { 
+            font-size: 20px; 
+            font-weight: bold; 
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .vehicle-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        /* sliding menu */
+        .sliding_menu{
+            position: absolute;
+            top:0;
+            margin-top: 30px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .sliding_menu div{
+            top:0;
+            background-color: brown;
+            width: 30px;
+            height: 5px;
+            border: 2px black solid;
+            border-radius: 2px;
+        }
+        .menu {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: #0D2330;
+            transition: 0.3s;
+            padding-top: 60px;
+        }
+
+        .menu a {
+            padding: 20px 16px;
+            text-decoration: none;
+            color: antiquewhite;
+            display: block;
+            font-family: 'Gill Sans', sans-serif;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #7d5003;
+        }
+
+        .menu.open {
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sliding menu -->
+    <div class="sliding_menu" id="sliding_menu" onclick="slide()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <div class="menu" id="menu">
+        {% if 'user_logged_in' in session %}
+            <a href="/">Home</a>
+            <a href="/profile">Your Profile</a>
+            <a href="/explore">Explore Vehicles</a>    
+            <a href="{{ url_for('transaction_history') }}">Your Transactions</a>        
+            <a href="/logout">Logout</a>                
+        {% endif %}
+    </div>
+
+    <div class="container">
+        <h2>Confirm Your Booking</h2>
+
+        <div class="vehicle-info">
+            <img id="vehicle-image" class="vehicle-image" src="" alt="Vehicle Image">
+            <h3 id="vehicle-name"></h3>
+            <p id="vehicle-description"></p>
+            <p><b>Seaters:</b> <span id="vehicle-seaters"></span></p>
+            <p><b>Price Per Hour:</b> ₹<span id="price-hour"></span> | <b>Price Per Day:</b> ₹<span id="price-day"></span></p>
+        </div>
+
+        <div class="input-group">
+            <label>Pickup Location:</label>
+            <input type="text" id="pickup-location" placeholder="Enter pickup location" required>
+        </div>
+        <div class="input-group">
+            <label>Drop-off Location:</label>
+            <input type="text" id="dropoff-location" placeholder="Enter drop-off location" required>
+        </div>
+
+        <div class="input-group">
+            <label>Pickup Date:</label>
+            <input type="date" id="pickup-date" required>
+        </div>
+        <div class="input-group">
+            <label>Pickup Time:</label>
+            <input type="time" id="pickup-time" required>
+        </div>
+        <div class="input-group">
+            <label>Drop-off Date:</label>
+            <input type="date" id="dropoff-date" required>
+        </div>
+        <div class="input-group">
+            <label>Drop-off Time:</label>
+            <input type="time" id="dropoff-time" required>
+        </div>
+
+        <div class="input-group">
+            <label>Choose Pricing:</label>
+            <select id="pricing-type" onchange="calculateDuration()">
+                <option value="select" disabled selected>Select Pricing</option>
+                <option value="hourly">Hourly</option>
+                <option value="daily">Daily</option>
+            </select>
+        </div>
+        <pre style="font-size: medium; font-family: Arial, Helvetica, sans-serif; font-style: bold;">Renting duration in (hours/days) :  <p style="display: inline;" id="duration"></p></pre>
+        <div class="total-price">Total Price: ₹<span id="total-price">0</span></div>
+
+        <button id="confirm-button" onclick="confirmBooking()" disabled>Confirm Booking</button>
+    </div>
+
+    <script>
+        let carData = null;
+        const vehicleId = {{ vehicle_id | tojson }};
+
+
+        // Function to set min date attributes and block past dates
+        function setMinDates() {
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+            const pickupDateInput = document.getElementById('pickup-date');
+            const dropoffDateInput = document.getElementById('dropoff-date');
+
+            pickupDateInput.setAttribute('min', today);
+
+            pickupDateInput.addEventListener('change', function() {
+                const pickupDate = pickupDateInput.value;
+                dropoffDateInput.setAttribute('min', pickupDate || today);
+            });
+
+            dropoffDateInput.setAttribute('min', today);
+        }
+
+        async function loadVehicleDetails() {
+            console.log("Vehicle ID from Flask:", vehicleId);
+
+            if (!vehicleId) {
+                alert("No vehicle selected. Please choose a vehicle first.");
+                window.location.href = "/explore";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/vehicle/${vehicleId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                console.log("Response status:", response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Failed to fetch vehicle: ${response.status}`);
+                }
+
+                carData = await response.json();
+                console.log("Fetched carData:", carData);
+
+                if (!carData.is_available) {
+                    alert("This vehicle is not available for booking.");
+                    window.location.href = "/explore";
+                    return;
+                }
+
+                document.getElementById('vehicle-image').src = `/static/images/${carData.photo}`;
+                document.getElementById('vehicle-name').innerText = carData.name || "Unknown Vehicle";
+                document.getElementById('vehicle-description').innerText = carData.description || "No description available";
+                document.getElementById('vehicle-seaters').innerText = carData.seaters || "Not specified";
+                document.getElementById('price-hour').innerText = parseFloat(carData.price_hour || 0).toFixed(2);
+                document.getElementById('price-day').innerText = parseFloat(carData.price_day || 0).toFixed(2);
+
+                calculateDuration();
+            } catch (error) {
+                console.error("Error loading vehicle:", error);
+                alert(`Failed to load vehicle details: ${error.message}`);
+                window.location.href = "/explore";
+            }
+        }
+
+        function resetPricing() {
+            // Reset pricing dropdown to "Select Pricing" option
+            document.getElementById('pricing-type').value = 'select';
+            toggleConfirmButton(false);
+        }
+
+        function getCurrentDateTime() {
+            const now = new Date();
+
+            let year = now.getFullYear();
+            let month = now.getMonth(); // Months are zero-based, so no need to add 1
+            let day = now.getDate();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+
+            // Return a Date object with the correct format
+            return new Date(year, month, day, hours, minutes);
+        }
+
+
+
+        function calculateDuration() {
+            // resetPricing();  // Reset pricing when any date or time changes
+
+            let pricingType = document.getElementById('pricing-type').value;
+
+            let pickupDate = document.getElementById('pickup-date').value;
+            let pickupTime = document.getElementById('pickup-time').value;
+            let dropoffDate = document.getElementById('dropoff-date').value;
+            let dropoffTime = document.getElementById('dropoff-time').value;
+
+            if (!pickupDate || !pickupTime || !dropoffDate || !dropoffTime) {
+                document.getElementById('total-price').innerText = "0.00";
+                toggleConfirmButton(false);
+                return;
+            }
+
+            let pickupDateTime = new Date(`${pickupDate}T${pickupTime}`);
+            let dropoffDateTime = new Date(`${dropoffDate}T${dropoffTime}`);
+            now=getCurrentDateTime();
+            if (pickupDateTime<=now){
+                alert("Pick up time must be later than now.");
+                return;
+            }
+            if (dropoffDateTime <= pickupDateTime) {
+                alert("Drop-off time must be after pickup time.");
+                return;
+            }
+            let durationInDays = Math.ceil((dropoffDateTime - pickupDateTime) / (1000 * 60 * 60 * 24));  // Round up to the next day if part of a day
+            let durationInHours = Math.ceil((dropoffDateTime - pickupDateTime) / (1000 * 60 * 60));  // Round up to the next hour if part of an hour
+            let duration= pricingType === 'hourly' ? durationInHours : durationInDays;
+            let pricePerUnit = pricingType === 'hourly' ? carData.price_hour : carData.price_day;
+            let totalPrice;
+
+            if (pricingType === "daily") {
+                totalPrice = carData.price_day * durationInDays;
+            } else {
+                totalPrice = carData.price_hour * durationInHours;
+            }
+
+            document.getElementById('total-price').innerText = totalPrice.toFixed(2);
+            document.getElementById('duration').innerText=duration;
+            toggleConfirmButton(totalPrice > 0);
+        }
+
+        function toggleConfirmButton(enable) {
+            const confirmButton = document.getElementById('confirm-button');
+            confirmButton.disabled = !enable;
+        }
+
+        async function confirmBooking() {
+            if (!carData || !carData.name) {
+                alert("No valid vehicle loaded. Please choose a vehicle first.");
+                window.location.href = "/explore";
+                return;
+            }
+
+            let pickupLocation = document.getElementById("pickup-location").value.trim();
+            let dropoffLocation = document.getElementById("dropoff-location").value.trim();
+            let pickupDate = document.getElementById("pickup-date").value;
+            let pickupTime = document.getElementById("pickup-time").value;
+            let dropoffDate = document.getElementById("dropoff-date").value;
+            let dropoffTime = document.getElementById("dropoff-time").value;
+            let duration = parseFloat(document.getElementById("duration").innerText);
+            let totalPrice = parseFloat(document.getElementById("total-price").innerText);
+
+            let bookingDetails = {
+                vehicle_id: carData.id,
+                car_name: carData.name,
+                description: carData.description || "",
+                seaters: carData.seaters || "",
+                pickup_location: pickupLocation,
+                dropoff_location: dropoffLocation,
+                pickup_date: `${pickupDate} ${pickupTime}`,
+                dropoff_date: `${dropoffDate} ${dropoffTime}`,
+                duration: `${duration} ${document.getElementById("pricing-type").value}`,
+                price_per_unit: document.getElementById("pricing-type").value === "hourly" ? carData.price_hour : carData.price_day,
+                total_price: totalPrice,
+                payment_method: "Done✅"
+            };
+
+            console.log("Sending bookingDetails:", bookingDetails);
+
+            const confirmButton = document.getElementById('confirm-button');
+            confirmButton.disabled = true; // Disable button during submission
+            confirmButton.innerText = "Processing...";
+
+            try {
+                const response = await fetch('/book_vehicle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookingDetails)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Booking failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Booking response:", data);
+
+                if (data.redirect) {
+                    window.location.href = data.redirect; // Redirect to /payment
+                } else {
+                    alert("Booking successful, but no redirect provided. Please contact support.");
+                    window.location.href = "/explore"; // Fallback redirect
+                }
+            } catch (error) {
+                console.error("Booking error:", error);
+                alert("An error occurred while confirming the booking: " + error.message);
+            } finally {
+                confirmButton.disabled = false; // Re-enable button
+                confirmButton.innerText = "Confirm Booking";
+            }
+        }
+
+        function slide() {
+            document.getElementById('menu').classList.toggle('open');
+        }
+
+        window.onload = function() {
+            setMinDates();
+            loadVehicleDetails();
+        };
+
+        // Add event listeners to reset pricing when dates/times change
+        document.getElementById('pickup-date').addEventListener('change', resetPricing);
+        document.getElementById('pickup-time').addEventListener('change', resetPricing);
+        document.getElementById('dropoff-date').addEventListener('change', resetPricing);
+        document.getElementById('dropoff-time').addEventListener('change', resetPricing);
+    </script>
+</body>
+</html>
