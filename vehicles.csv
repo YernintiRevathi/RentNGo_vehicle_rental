@@ -1,0 +1,15 @@
+id,name,description,price,is_available,photo,seaters
+4,Chevrolet Malibu,"5 seats, 32 MPG, Gasoline",2150.0,false,Chevrolet Malibu.avif,5
+5,Nissan Altima,"5 seats, 33 MPG, Gasoline",3110.0,false,Nissan Altima.jpg,5
+6,BMW 3 Series,"5 seats, 28 MPG, Gasoline",4200.0,false,BMW 3 Series.jpg,5
+7,Mercedes C-Class,"5 seats, 29 MPG, Gasoline",5250.0,false,Mercedes C-Class.jpg,5
+8,Tesla Model 3,"5 seats, Electric, 250-mile range",3000.0,false,Tesla Model 3.jpeg,5
+10,Kia Optima,"5 seats, 30 MPG, Gasoline",4112.0,false,Kia Optima.jpeg,5
+11,Jeep Wrangler,"4 seats, Off-road, 20 MPG",2000.0,false,Jeep Wrangler.jpeg,4
+12,Toyota,"4 seats, nothing",3122.0,true,default.jpg,4
+13,Audi,"5 seats, nothing",10000.0,true,AudiA4.jpg,5
+14,Honda,"2 seats, Honda EV Bike – Electric, 2-Seater, 150-Mile Range",500.0,true,Hondajpg.jpg,2
+15,Pulsar,"2 seats,  2-Seater,Bajaj Pulsar 250 – Petrol, 250cc Engine",600.0,true,pulsarjpg.jpg,2
+16,Royal enfield,"2 seats, 2-Seater,Royal Enfield Classic 350 – Petrol,  349cc Engine",800.0,true,Royal_enfield.jpg,2
+17,Yamaha MT,"2 seats,  2-Seater,Yamaha MT-15 V2 – Petrol, 155cc Engine",600.0,true,MT.jpg,2
+18,yamaha,"4 seats, ...",1000.0,true,,4

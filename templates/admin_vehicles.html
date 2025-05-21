@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Vehicles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .available {
+            background-color: green;
+        }
+        .not-available {
+            background-color: red;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-container button {
+            margin-top: 10px;
+            background-color: #28a745;
+        }
+        /* Modal Styles */
+        .modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgb(0, 0, 0);
+                background-color: rgba(0, 0, 0, 0.4);
+                padding-top: 60px;
+            }
+
+            /* Modal Content */
+            .modal-content {
+                background-color: #fefefe;
+                margin: 5% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                border-radius: 10px;
+                position: relative; /* Important for positioning the close button */
+            }
+
+            /* Close Button */
+            .close {
+                color: #aaa;
+                position: absolute; /* Position the close button inside the modal */
+                top: 10px;
+                right: 10px;
+                font-size: 30px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 2; /* Ensure it's above other elements */
+            }
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+            }
+            .sidebar {
+            width: 250px;
+            height: 100vh;
+            top:0;
+            left:0;
+            background: #2B3A50;
+            color: white;
+            position: fixed;
+            padding-top: 20px;
+            }
+            .sidebar a {
+                display: block;
+                color: white;
+                padding: 15px;
+                text-decoration: none;
+                font-size: 18px;
+                cursor: pointer;
+            }
+            .sidebar a:hover { background: lightblue; }
+            .toggle-btn {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                background: lightblue;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            .dark-mode { background-color: #1a1a1a; color: white; }
+            .dark-mode .form-container .section {
+                background-color: #333; /* Dark background for the form container */
+                border-color: #555; /* Lighter border for contrast */
+                color: white; /* Ensure text inside the form is white */
+            }
+            .dark-mode .form-container input,
+            .dark-mode .form-container button {
+                background-color: #444; /* Dark background for inputs and buttons */
+                color: white; /* White text in the inputs */
+                border: 1px solid #666; /* Lighter border for inputs */
+            }
+            .dark-mode .form-container input:focus,
+            .dark-mode .form-container button:hover {background-color: #555; /* Slightly lighter on focus or hover */}
+            .dark-mode .form-container button {background-color: #28a745; /* Green button for form submission */}
+            .dark-mode .form-container button:hover {background-color: #218838; /* Darker green on hover */}
+            .dark-mode label {color: white; /* Ensure labels are visible in dark mode */}
+            .dark-mode .container {background-color: #333; /* Dark background for the container */
+                color: white; /* White text for better readability */
+                border-color: #555; /* Slightly lighter border for the container */
+            }
+            .dark-mode table {background-color: #444; /* Dark background for the table */
+                color: white; /* White text for table content */
+            }
+            .dark-mode th,
+            .dark-mode td {border: 1px solid #555; /* Darker border for table cells */
+                padding: 12px;
+                text-align: center;
+            }
+            .dark-mode th {background-color: #007bff; /* Keeping the blue header color for contrast */
+                color: white; /* White text for headers */
+            }
+            .dark-mode tr:nth-child(even) {background-color: #555; /* Lighter background for alternate rows */}
+            .dark-mode tr:hover {background-color: #666; /* Hover effect for rows */}
+    </style>
+</head>
+<body>
+    <button class="toggle-btn" onclick="toggleDarkMode()">Theme ☀︎</button>
+    <div class="sidebar">
+        <h2 style="text-align: center;">Admin Panel</h2>
+        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        <a href="{{ url_for('admin_users') }}">User Management</a>
+        <a href="{{ url_for('admin_bookings') }}">Bookings</a>
+        <a href="{{ url_for('admin_transactions') }}">Payments Management</a>
+        <a href="{{ url_for('admin_logout') }}">Logout</a>
+    </div>
+    <!-- Display flash messages in a custom modal -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+                
+        {% if messages %}
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <p>{{ messages[0][1] }}</p>  <!-- Display message content -->
+                </div>
+            </div>
+            <script>
+                // Show the modal only if there's a message
+                document.addEventListener('DOMContentLoaded', function () {
+                    var modal = document.getElementById("myModal");
+                    modal.style.display = "block";
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
+    <div class="container">
+        <h2>Admin - Manage Vehicles</h2>
+
+        <!-- Add Vehicle Form -->
+        <div class="form-container">
+            <h3>Add New Vehicle</h3>
+            <form method="POST" action="{{ url_for('admin_vehicles') }}">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="description">Description:</label>
+                <input type="text" id="description" name="description" required>
+                <label for="price">Price Per Day:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+                <label for="photo">Photo URL:</label>
+                <input type="file" id="photo" name="photo" placeholder="default.jpg">
+                <label for="seaters">Seaters:</label>
+                <input type="number" id="seaters" name="seaters" required>
+                <button type="submit" class="btn">Add Vehicle</button>
+            </form>
+        </div>
+
+        <!-- Vehicle List -->
+        <table>
+            <tr>
+                <th>Vehicle Name</th>
+                <th>Price Per Day</th>
+                <th>Availability</th>
+                <th>Action</th>
+            </tr>
+            {% for vehicle in vehicles %}
+            <tr>
+                <td>{{ vehicle['name'] }}</td>
+                <td>$ {{ vehicle.price }}</td>
+                <td id="status-{{ vehicle['id'] }}">
+                    {% if vehicle['is_available'] %}✔ Available{% else %}❌ Not Available{% endif %}
+                </td>
+                <td>
+                    <button class="btn {% if vehicle['is_available'] %}not-available{% else %}available{% endif %}"
+                            onclick="updateAvailability('{{ vehicle['id'] }}')">
+                        {% if vehicle['is_available'] %}Mark as Not Available{% else %}Mark as Available{% endif %}
+                    </button>
+                    <form method="POST" action="{{ url_for('delete_vehicle', vehicle_id=vehicle['id']) }}" style="display:inline;">
+                        <button type="submit" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete {{ vehicle['name'] }}?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+    function updateAvailability(vehicleId) {
+        fetch(`/admin/update_availability/${vehicleId}`, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const statusElement = document.getElementById(`status-${vehicleId}`);
+                statusElement.innerHTML = data.vehicle_id ? "✔ Available" : "❌ Not Available"; // Simplified check
+                location.reload(); // Refresh page to reflect changes
+            } else {
+                alert("Failed to update availability.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    function closeModal() {
+                var modal = document.getElementById("myModal");
+                modal.style.display = "none";
+            }
+    function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+        }
+
+    window.onload = function () {
+            if (localStorage.getItem("darkMode") === "enabled") {
+                document.body.classList.add("dark-mode");
+            }
+        }
+    </script>
+</body>
+</html>

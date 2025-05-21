@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: url('https://images.unsplash.com/photo-1554951322-ee457bc80d24?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fHNwZWVkb21ldGVyfGVufDB8fDB8fHww') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+
+        .profile-container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            text-align: center;
+            width: 400px;
+            border: 2px solid white;
+        }
+
+        .profile-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .btn {
+            margin-top: 10px;
+            padding: 6px 12px;
+            border: none;
+            background: linear-gradient(to right, #8a8a8a, #4a4a4a);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            display: block;
+            width: 100%;
+            font-size: 14px;
+            border: 1px solid white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #6b6b6b, #3b3b3b);
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, #a0a0a0, #505050);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="profile-container">
+        <h1>Admin Profile</h1>
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile Picture" class="profile-img">
+        <h2 id="username">👤 Name</h2>
+        <p id="email">📧 Email</p>
+        <p id="phone">📞 Phone</p>
+        <p id="company">🏢 Company Name</p>
+        <p id="totalVehicles">🚗 Total Vehicles</p>
+        <p id="address">📍 Address</p>
+
+        <button class="btn" onclick="editProfile()">✏️ Edit Profile</button>
+        <button class="btn btn-secondary" onclick="updateCompany()">🏢 Update Company Name</button>
+        <button class="btn btn-secondary" onclick="changePicture()">🖼️ Change Picture</button>
+        <button class="btn" onclick="updatePassword()">🔒 Change Password</button>
+        <button class="btn btn-danger" onclick="deleteAccount()">🗑️ Delete Account</button>
+    </div>
+
+    <script>
+        function editProfile() {
+            let newName = prompt("Enter new name:", document.getElementById("username").innerText);
+            let newEmail = prompt("Enter new email:", document.getElementById("email").innerText);
+            let newPhone = prompt("Enter new phone number:", document.getElementById("phone").innerText);
+            let newCompany = prompt("Enter company name:", document.getElementById("company").innerText);
+            let newTotalVehicles = prompt("Enter total vehicles:", document.getElementById("totalVehicles").innerText);
+            let newAddress = prompt("Enter new address:", document.getElementById("address").innerText);
+
+
+            if (newName) document.getElementById("username").innerText = "👤 " + newName;
+            if (newEmail) document.getElementById("email").innerText = "📧 " + newEmail;
+            if (newPhone) document.getElementById("phone").innerText = "📞 " + newPhone;
+            if (newCompany) document.getElementById("company").innerText = "🏢 " + newCompany;
+            if (newTotalVehicles) document.getElementById("totalVehicles").innerText = "🚗 " + newTotalVehicles;
+            if (newAddress) document.getElementById("address").innerText = "📍 " + newAddress;
+        }
+
+        function changePicture() {
+            let newPic = prompt("Enter new profile picture URL:");
+            if (newPic) document.querySelector(".profile-img").src = newPic;
+        }
+
+        function updatePassword() {
+            let newPassword = prompt("Enter new password:");
+            if (newPassword) alert("Password updated successfully!");
+        }
+
+        function deleteAccount() {
+            if (confirm("Are you sure you want to delete your account?")) {
+                alert("Account deleted.");
+                document.querySelector(".profile-container").innerHTML = "<h2>🗑️ Account Deleted</h2>";
+            }
+        }
+        function updateCompany() {
+            let newCompany = prompt("Enter company name:", document.getElementById("company").innerText);
+            if (newCompany) document.getElementById("company").innerText = "🏢 " + newCompany;
+        }
+    </script>
+</body>
+
+</html>

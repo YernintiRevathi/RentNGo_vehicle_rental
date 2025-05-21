@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Bookings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 80%;
+            /* display:flex; */
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        .button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #c82333;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            top:0;
+            left:0;
+            background: #2B3A50;
+            color: white;
+            position: fixed;
+            padding-top: 20px;
+            }
+            .sidebar a {
+                display: block;
+                color: white;
+                padding: 15px;
+                text-decoration: none;
+                font-size: 18px;
+                cursor: pointer;
+            }
+            .sidebar a:hover { background: lightblue; }
+        .toggle-btn {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                background: lightblue;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            .dark-mode { background-color: #1a1a1a; color: white; }
+            .dark-mode .section {
+                background-color: #333; /* Dark background for the form container */
+                border-color: #555; /* Lighter border for contrast */
+                color: white; /* Ensure text inside the form is white */
+            }
+            .dark-mode ,
+            .dark-mode  h1 button {
+                background-color: #444; /* Dark background for inputs and buttons */
+                color: white; /* White text in the inputs */
+                border: 1px solid #666; /* Lighter border for inputs */
+            }
+            .dark-mode .form-container input:focus,
+            .dark-mode .form-container button:hover {background-color: #555; /* Slightly lighter on focus or hover */}
+            .dark-mode .form-container button {background-color: #28a745; /* Green button for form submission */}
+            .dark-mode .form-container button:hover {background-color: #218838; /* Darker green on hover */}
+            .dark-mode label {color: white; /* Ensure labels are visible in dark mode */}
+            .dark-mode .container {background-color: #333; /* Dark background for the container */
+                color: white; /* White text for better readability */
+                border-color: #555; /* Slightly lighter border for the container */
+            }
+            .dark-mode table {background-color: #444; /* Dark background for the table */
+                color: white; /* White text for table content */
+            }
+            .dark-mode th,
+            .dark-mode td {border: 1px solid #555; /* Darker border for table cells */
+                padding: 12px;
+                text-align: center;
+            }
+            .dark-mode th {background-color: #007bff; /* Keeping the blue header color for contrast */
+                color: white; /* White text for headers */
+            }
+            .dark-mode tr:nth-child(even) {background-color: #555; /* Lighter background for alternate rows */}
+            .dark-mode tr:hover {background-color: #666; /* Hover effect for rows */}
+    </style>
+</head>
+<body>
+    <button class="toggle-btn" onclick="toggleDarkMode()">Theme ☀︎</button>
+    <div class="sidebar">
+        <h2 style="text-align: center;">Admin Panel</h2>
+        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        <a href="{{ url_for('admin_users') }}">User Management</a>
+        <a href="{{ url_for('admin_vehicles') }}">Vehicle Management</a>
+        <a href="{{ url_for('admin_transactions') }}">Payments Management</a>
+        <a href="{{ url_for('admin_logout') }}">Logout</a>
+    </div>
+    <h1>Bookings Management</h1>
+    <div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Car Name</th>
+                <th>Pickup Location</th>
+                <th>Dropoff Location</th>
+                <th>Pickup Date</th>
+                <th>Dropoff Date</th>
+                <th>Duration</th>
+                <th>Total Price</th>
+                <th>Payment Method</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.user.name }}</td>
+                <td>{{ booking.car_name }}</td>
+                <td>{{ booking.pickup_location }}</td>
+                <td>{{ booking.dropoff_location }}</td>
+                <td>{{ booking.pickup_date }}</td>
+                <td>{{ booking.dropoff_date }}</td>
+                <td>{{ booking.duration }}</td>
+                <td>{{ booking.total_price }}</td>
+                <td>{{ booking.payment_method }}</td>
+                <td>
+                    <form action="{{ url_for('delete_booking', booking_id=booking.id) }}" method="POST" style="display:inline;">
+                        <button class="button" type="submit" onclick="return confirm('Are you sure?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="11">No bookings found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <!-- <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a> -->
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+        }
+         window.onload = function () {
+            if (localStorage.getItem("darkMode") === "enabled") {
+                document.body.classList.add("dark-mode");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home Page</title>
+        <style>
+            /*for heading*/
+            .header-container {
+               display: flex;
+               justify-content: flex-end; /* Push buttons to the right */
+               align-items: center;
+               width: 100%;
+               margin-top: 10px;
+               position: relative; /* Needed for absolute positioning of heading */
+            }
+
+            .heading,.explore {
+               position: absolute;
+               left: 50%;
+               transform: translateX(-55%); /* Centers it exactly */
+               font-size: 300%;
+               color: lightblue;
+               font-family: 'Gill Sans';
+               /*text-shadow: 2px 2px 14px rgb(228, 225, 225,1);*/
+               text-shadow:-2px -2px 0px white,/*shadow 2px left and 2px up */
+                    2px -2px 0px white,/*shadow 2px right and 2px up */
+                    -2px 2px 0px white,/*shadow 2px left and 2px down */
+                    2px 2px 0px white;/*shadow 2px right and 2px down */
+               white-space: nowrap; /*Prevents wrapping*/
+            }
+            /*.heading{
+                color:lightblue;
+                font-family:'Gill Sans';
+                font-style:bold;
+                font-size:300%;
+                display:block;
+                margin:30px auto;
+                width:fit-content;
+                position: relative;
+                text-align:center;
+            }*/
+            /* for fixed background for scrooling message */
+            .fixed-background{
+                color:#2B3A50;
+                background-color: antiquewhite;
+                width:100%;
+                overflow:hidden;
+                text-wrap:nowrap;
+                border-radius: 10px;
+            }
+            /*styling text in scrolling */
+            .scrolling{
+                color:chocolate;
+                display: inline-block; /*applies the style only upto where the text is present*/
+                animation: scroll-left 10s linear infinite;
+            }
+            /* to make the text scroll */
+            @keyframes scroll-left{
+                from{
+                    transform:translatex(300%);
+                }
+                to{
+                    transform:translatex(-100%);
+                }
+
+            }
+            /* search bar 
+            .search-bar{
+                opacity:1;
+                height:60px;
+                width:60%;
+                border: none;
+                background-color: antiquewhite;
+                margin-left:80px;
+                border-radius:10px;
+            }*/
+            body{
+
+                background-image:url('https://static.vecteezy.com/system/resources/thumbnails/026/992/343/small_2x/classic-modified-car-with-dark-smokie-background-ai-generative-free-photo.jpg');
+                background-repeat:no-repeat;
+                background-size:cover;
+                background-attachment: fixed;
+            }
+            .button{
+                font-style: bold;
+                font-size: medium;
+                margin: 0px 30px;
+                color: #2B3A50;
+                height:60px;
+                width:138px;
+                border-color: lightblue;
+                border-width: 5px;
+                border-style:solid;
+                border-radius:10px;
+                display:inline;
+            }
+            .button:hover {
+                /*background-color: #45a049;  Darker green when hovered */
+                transform: scale(1.1); /* Slightly enlarge the button */
+            }
+            /* three lines for sliding menu */
+            .sliding_menu{
+                position: absolute;
+                margin-top: 30px;
+                left: 20px;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                z-index: 1000; /*the three lines will stay on top of the sliding menu even after it is opened*/
+            }
+            .sliding_menu div{
+                background-color: brown;
+                width: 35px;
+                height: 9px;
+                border: 2px black solid;
+                border-radius: 2px;
+            }
+            .sliding_menu.top{
+                top: 0;
+            }
+            /* list after the sliding menu is opened */
+            .menu {
+                position: fixed;
+                top: 0;
+                left: -250px; /* Initially hidden off-screen */
+                width: 250px;
+                height: 100%;
+                background-color: #0D2330;
+                transition: 0.3s;
+                padding-top: 60px;
+                /* z-index: 1000; */
+            }
+
+            .menu a {
+                margin: 10px 0px;
+                padding: 20px 16px; /*padding-top & bottom*/ /*padding left & right*/
+                /* padding-top: 10px; if this is also present then that 20px at top is now 10px*/
+                text-decoration: none;
+                color: antiquewhite;
+                display: block;
+                font-family: 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif;
+                font-size: 18px;
+                transition: 0.3s;
+            }
+
+            .menu a:hover {
+                background-color: #7d5003;
+            }
+
+            /* Open menu style (when active) */
+            .menu.open {
+                left: 0; /* Slide in from the left */
+            }
+            /*.explore{
+               display: block;
+               margin-top: 10px;
+               position: relative;
+            }*/
+        </style>
+    </head>
+    <body>
+        <body>
+            <div class="fixed-background">
+                <h1 class="scrolling">Welcome to RentNGo Website :)</h1>
+            </div>
+    
+            <!-- Sliding menu -->
+            <div class="sliding_menu" id="sliding_menu" onclick="slide()">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            
+            <div class="menu" id="menu">
+                <!-- <a href="/profile">Your Profile</a> -->
+                <!-- Add this link to go to the profile page -->
+                <a href="{{ url_for('profile') }}">Your Profile</a>
+                <a href="{{ url_for('transaction_history') }}">Your Transactions</a>
+            </div>
+    
+            <div class="header-container">
+                <!-- Show buttons dynamically based on login status -->
+                {% if 'user_logged_in' in session %}
+                    <!-- If logged in, show Logout button -->
+                    <button class="button" onclick="window.location.href='/logout'">Logout</button>
+                {% else %}
+                    <!-- If not logged in, show Register and Login buttons -->
+                    <button class="button" onclick="window.location.href='/register'">Register</button>
+                    <button class="button" onclick="window.location.href='/login'">Login</button>
+                    <button class="button" onclick="window.location.href='/admin/login'">Admin Login </button>
+                {% endif %}
+            </div>
+    
+            <div style="margin-top:100px; margin-left:50px">
+                <div class="heading"><h1>RentNGo :)</h1></div>
+            </div>
+    
+            <div style="margin:170px auto;" class="explore">
+                <button class="button" id="exploreBtn">Explore Vehicles</button>
+            </div>
+    
+            <script>
+                function slide(){
+                    var menu=document.getElementById('menu');
+                    var lines=document.getElementById('sliding_menu');
+                    lines.classList.toggle('top');
+                    menu.classList.toggle('open');
+                }
+    
+                document.getElementById("exploreBtn").addEventListener("click", function() {
+                    fetch('/is_logged_in')
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data === "User is logged in") {
+                            window.location.href = "/explore";
+                        } else {
+                            window.location.href = "/login";
+                        }
+                    });
+                });
+            </script>
+    <!-- http://127.0.0.1:5000/ -->
+        </body>
+</html>
+

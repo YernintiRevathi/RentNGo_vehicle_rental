@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Vehicles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIQo-WJvRK0fo5W5U8y-M_RAdUO6B4BEupyQ&s') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 1200px;
+            margin: 20px auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter label {
+            font-weight: bold;
+        }
+
+        .filter select {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        .vehicle-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .vehicle-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: calc(33.333% - 20px);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .vehicle-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .vehicle-card {
+                width: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .vehicle-card {
+                width: 100%;
+            }
+        }
+        /* three lines for sliding menu */
+        .sliding_menu{
+            position: absolute;
+            margin-top: 30px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000; /*the three lines will stay on top of the sliding menu even after it is opened*/
+            }
+            .sliding_menu div{
+            background-color: brown;
+            width: 30px;
+            height: 5px;
+            border: 2px black solid;
+            border-radius: 2px;
+            }
+            .sliding_menu.top{
+            top: 0;
+            }
+            /* list after the sliding menu is opened */
+            .menu {
+            position: fixed;
+            top: 0;
+            left: -250px; /* Initially hidden off-screen */
+            width: 250px;
+            height: 100%;
+            background-color: #0D2330;
+            transition: 0.3s;
+            padding-top: 60px;
+            /* z-index: 1000; */
+            }
+
+            .menu a {
+            padding: 20px 16px; /*padding-top & bottom*/ /*padding left & right*/
+            /* padding-top: 10px; if this is also present then that 20px at top is now 10px*/
+            text-decoration: none;
+            color: antiquewhite;
+            display: block;
+            font-family: 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif;
+            font-size: 18px;
+            transition: 0.3s;
+            }
+
+            .menu a:hover {
+            background-color: #7d5003;
+            }
+
+            /* Open menu style (when active) */
+            .menu.open {
+            left: 0; /* Slide in from the left */
+            }
+
+    </style>
+</head>
+<body>
+    <!-- sliding menu -->
+    <div class="sliding_menu" id="sliding_menu" onclick="slide()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <!-- <div class="menu" id="menu">
+        <a href="{{ url_for('register') }}" target="_blank">Your Profile</a>
+    </div> -->
+    <div class="menu" id="menu">
+        <!-- Show buttons dynamically based on login status -->
+        {% if 'user_logged_in' in session %}
+            <a href="/">Home</a>
+            <a href="/profile">Your Profile</a>
+            <a href="{{ url_for('transaction_history') }}">Your Transactions</a>
+            <a href="/logout">Logout</a>                
+        {% endif %}
+    </div>
+    <div class="container">
+        <h1>Explore Vehicles</h1>
+        <div class="filter">
+            <label for="price-filter">Filter by Price Range(per day):</label>
+            <select id="price-filter">
+                <option value="all">All</option>
+                <option value="0-1000">₹0 - ₹1000</option>
+                <option value="1000-1500">₹1000 - ₹1500</option>
+                <option value="1500-2000">₹1500 - ₹2000</option>
+                <option value="2000-2500">₹2000- ₹2500</option>
+                <option value="2500-3000">₹2500 - ₹3000</option>
+                <option value="3000+">₹3000+</option>
+            </select>
+            
+            <label for="seater-filter">Filter by Seaters:</label>
+            <select id="seater-filter">
+                <option value="all">All</option>
+                <option value="2">2 Seater</option>
+                <option value="3">3 Seater</option>
+                <option value="4">4 Seater</option>
+                <option value="5">5 Seater</option>
+                <option value="6">6 Seater</option>
+                <option value="7+">7+ Seater</option>
+            </select>
+        </div>
+        
+        <div class="vehicle-container">
+            {% for vehicle in vehicles %}
+            <div class="vehicle-card" data-price="{{ vehicle.price }}" data-seaters="{{ vehicle.seaters }}">
+                <h2>{{ vehicle.name }}</h2>
+                {% if vehicle['photo'] %}
+                    <img src="{{ url_for('static', filename='images/'+vehicle.photo) }}" alt="{{ vehicle.name }}">
+                {% endif %}
+                <p><strong>Seaters:</strong> {{ vehicle.seaters }}</p>
+                <p><strong>Price:</strong> ₹{{ vehicle.price }} per day</p>
+                <p><strong>Availability:</strong> {% if vehicle.is_available %}✔ Available{% else %}❌ Not Available{% endif %}</p>
+                <!-- <a href="{{ url_for('book_vehicle', vehicle_id=vehicle.id) }}" class="btn">Book Now</a> -->
+                {% if vehicle.is_available %}
+                    <a href="{{ url_for('book_vehicle', vehicle_id=vehicle.id) }}" class="book-now-button btn">Book Now</a>
+                {% else %}
+                    <button class="book-now-button" disabled>Not Available</button>
+                {% endif %}
+            </div>
+            {%endfor%}
+        </div>
+    </div>
+    <script>
+        document.getElementById("price-filter").addEventListener("change", filterVehicles);
+        document.getElementById("seater-filter").addEventListener("change", filterVehicles);
+
+        function filterVehicles() {
+            let priceFilter = document.getElementById("price-filter").value;
+            let seaterFilter = document.getElementById("seater-filter").value;
+            let vehicles = document.querySelectorAll(".vehicle-card");
+
+            vehicles.forEach(vehicle => {
+                let price = parseFloat(vehicle.getAttribute("data-price")) || 0;
+                let seaters = parseInt(vehicle.getAttribute("data-seaters")) || 0;
+
+                let priceMatch = (priceFilter === "all") ||
+                                (priceFilter === "0-1000" && price <= 1000) ||
+                                (priceFilter === "1000-1500" && price > 1000 && price <= 1500) ||
+                                (priceFilter === "1500-2000" && price > 1500 && price <= 2000) ||
+                                (priceFilter === "2000-2500" && price > 2000 && price <= 2500) ||
+                                (priceFilter === "2500-3000" && price > 2500 && price <= 3000) ||
+                                (priceFilter === "3000+" && price > 3000);
+
+                let seaterMatch = (seaterFilter === "all") ||
+                                  (seaterFilter === "7+" && seaters >= 7) ||
+                                  (parseInt(seaterFilter) === seaters);
+
+                vehicle.style.display = (priceMatch && seaterMatch) ? "flex" : "none";
+            });
+        }
+        function slide(){
+            var menu=document.getElementById('menu');
+            var lines=document.getElementById('sliding_menu');
+            lines.classList.toggle('top');
+            menu.classList.toggle('open');
+            }
+    </script>
+</body>
+</html>

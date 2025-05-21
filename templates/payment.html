@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0 auto; 
+            text-align: center;
+            display: flex;
+            justify-content: center;  /* Center horizontally */
+            align-items: center;      /* Center vertically */
+            background: url('https://static.vecteezy.com/system/resources/thumbnails/027/533/475/small_2x/car-or-bike-smokie-background-realistic-ai-generative-free-photo.jpg') no-repeat center center/cover;
+            background-repeat:no-repeat;
+            background-size:cover;
+            background-attachment: fixed;
+            padding: 0;
+            min-height: 100vh; 
+
+        }
+        .payment-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .payment-option {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .selected {
+            border: 2px solid blue;
+            background-color: lightblue;
+        }
+        .btn {
+            background: black;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .qr-container {
+            display: none;
+            margin-top: 10px;
+        }
+        .qr-container img {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <h2>Select Payment Method</h2>
+        <div class="payment-option" onclick="selectPayment(this, 'phonepe')">PhonePe</div>
+        <div class="payment-option" onclick="selectPayment(this, 'gpay')">Google Pay</div>
+        <div class="payment-option" onclick="selectPayment(this, 'paytm')">Paytm</div>
+        <br>
+        <h3>Total Price: ₹<span id="total-price">{{ booking_details.total_price | float | round(2) }}</span></h3>
+        <form action="/process_payment" method="POST">
+            <input type="hidden" name="payment_method" id="payment_method">
+            <input type="hidden" name="amount" id="amount" value="{{ booking_details.total_price }}">
+            <button type="submit" class="btn" onclick="return validatePayment()">Proceed to Pay</button>
+        </form>
+        <div class="qr-container" id="qr-container">
+            <h3>Enter UPI ID</h3>
+            <!-- <img id="qr-code" src="" alt="QR Code"> -->
+            <input type="text" id="upi" placeholder="">
+        </div>
+        <br><br>
+        <!-- <a class="btn" href="/transactions">View Transaction History</a> -->
+    </div>
+
+    <script>
+        let selectedQR = "";
+
+        function selectPayment(element, qrPath) {
+            document.querySelectorAll(".payment-option").forEach(option => {
+                option.classList.remove("selected");
+            });
+            element.classList.add("selected");
+            selectedQR = qrPath;
+            document.getElementById("payment_method").value = element.innerText;
+
+            // Show QR code
+            if (qrPath=="phonepe"){
+                document.getElementById("upi").placeholder = "user@ybl";
+            }
+            else if(qrPath=="gpay"){
+                document.getElementById("upi").placeholder = "user@okicici";
+            }
+            else{
+                document.getElementById("upi").placeholder = "user@paytm";
+            }
+            const qrContainer = document.getElementById("qr-container");
+            const qrCodeImg = document.getElementById("qr-code");
+            qrContainer.style.display = "block";
+            qrCodeImg.src = `/static/qr/${qrPath}`; // Adjust path based on your static folder structure
+        }
+
+        function validatePayment() {
+            if (!selectedQR) {
+                alert("Please select a payment method!");
+                return false;
+            }
+
+            let totalPrice = parseFloat(document.getElementById("total-price").innerText);
+            if (totalPrice <= 0 || isNaN(totalPrice)) {
+                alert("Invalid total price. Please try again.");
+                return false;
+            }
+            const upiRegex = /^[a-zA-Z0-9._-]+@([a-zA-Z0-9.-]+)$/;
+            let upi=document.getElementById('upi').value;
+            const match = upi.match(upiRegex);
+                    
+            if (!match) return false;        
+            const provider = match[1].toLowerCase();
+            const validProviders = ["ybl", "okhdfcbank", "okicici", "okaxis", "paytm"];
+            return validProviders.includes(provider);
+
+            return true;
+        }
+    </script>
+</body>
+</html>

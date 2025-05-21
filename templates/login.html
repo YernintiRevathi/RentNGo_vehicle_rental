@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login Page</title>
+        <style>
+            .fixed-background{
+                color:#2B3A50;
+                background-color: antiquewhite;
+                width:100%;
+                overflow:hidden;
+                text-wrap:nowrap;
+                border-radius: 10px;
+            }
+
+            body{
+
+                background-image:url('https://static.vecteezy.com/system/resources/thumbnails/026/992/343/small_2x/classic-modified-car-with-dark-smokie-background-ai-generative-free-photo.jpg');
+                background-repeat:no-repeat;
+                background-size:cover;
+                background-attachment: fixed;
+            }
+            .scrolling{
+                display: inline-block; /*applies the style only upto where the text is present*/
+                animation: scroll-left 10s linear infinite;
+            }
+            @keyframes scroll-left{
+                from{
+                    transform:translatex(300%);
+                }
+                to{
+                    transform:translatex(-100%);
+                }
+            }
+            .form-styling{                    
+                margin: 80px auto;
+                width: 450px;
+                border: 3px solid #2B3A50;
+                background-color: antiquewhite;
+                border-radius: 10px;
+                padding: 20px;
+            }
+            label,input,p{
+                display:block;
+                margin:10px 30px;
+                width:80%;
+                /*height:20px;*/
+                font-size: 110%;
+            }
+            button{
+                display:block;
+                margin:0 auto;
+                width:35%;
+                height:30px;
+                font-size:110%;
+                background-color:#2B3A50;
+                color:aliceblue;
+            }
+            input,button{
+                border:0.5px solid;
+                border-radius:5px;
+            }
+            .center{
+                text-align:center;
+            }
+            /* Modal Styles */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgb(0, 0, 0);
+                background-color: rgba(0, 0, 0, 0.4);
+                padding-top: 60px;
+            }
+
+            /* Modal Content */
+            .modal-content {
+                background-color: #fefefe;
+                margin: 5% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                border-radius: 10px;
+                position: relative; /* Important for positioning the close button */
+            }
+
+            /* Close Button */
+            .close {
+                color: #aaa;
+                position: absolute; /* Position the close button inside the modal */
+                top: 10px;
+                right: 10px;
+                font-size: 30px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 2; /* Ensure it's above other elements */
+            }
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="fixed-background">
+            <h1 class="scrolling">Welcome to RentNGo Website :)</h1>
+        </div>
+        <!-- Display flash messages in a custom modal -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+                
+            {% if messages %}
+                <div id="myModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <p>{{ messages[0][1] }}</p>  <!-- Display message content -->
+                    </div>
+                </div>
+                <script>
+                    // Show the modal only if there's a message
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var modal = document.getElementById("myModal");
+                        modal.style.display = "block";
+                    });
+                </script>
+            {% endif %}
+        {% endwith %}
+        <div class="form-styling">
+                <h2 class="center">Login</h2>
+            <form id="login-form" method="POST" action="{{ url_for('login') }}">
+                <label for="name" >Username:</label>
+                <input type="text" name="name" id="name" placeholder="Enter your name" required>
+                <label for="email" >Email Address:</label>
+                <input type="email" name="email" id="email" placeholder="Enter your email address" required>
+                <label for="password" >Password:</label>
+                <input type="password" name="password" id="password" placeholder="Enter your password" required>
+                <br>
+                <button type="submit" name="button" id="button" value="Submit">Submit</button>
+                <br>
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+                <!-- <p> don't have an account?<a target="_self"
+                href="C:\Users\HP\OneDrive\Documents\miniii\templates\registration.html">Create an account</a></p> -->
+            </form>
+        </div>
+        <script>
+            // Function to close the modal
+            function closeModal() {
+                var modal = document.getElementById("myModal");
+                modal.style.display = "none";
+            }
+        </script>
+    </body>
+</html>
