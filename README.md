@@ -77,10 +77,10 @@
 
 ## ✨ Future Improvements
 
-* Add login/signup functionality
-* Enable booking confirmation and return logic
-* Use a proper database like SQLite or PostgreSQL
-* Add filtering/search options
+* Enable booking confirmation messege and return logic
+* logging with google
+* Realtime payment
+* Add search options
 
 ---
 
